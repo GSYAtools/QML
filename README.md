@@ -3,6 +3,7 @@
 ## Authors
 
 Carlos Mario Braga\
+Aurelio J. Horneros\
 Manuel A. Serrano\
 Eduardo Fernández-Medina
 
