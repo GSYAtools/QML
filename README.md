@@ -35,8 +35,7 @@ The repository implements the complete pipeline:
 1.  Experiment execution under NISQ-like noise.
 2.  Multi-run consolidation and statistical analysis.
 3.  Regime-based structural analysis.
-4.  Estimation of the effective gradient attenuation rate (
-    `\epsilon`{=tex}\_{`\text{eff}`{=tex}} ).
+4.  Estimation of the effective gradient attenuation rate.
 
 ------------------------------------------------------------------------
 
