@@ -234,19 +234,53 @@ def plot_delta_vs_L(stats_df, deltas_df, outpath, title_extra=""):
     plt.close()
 
 def plot_gradvar_by_L(deltas_df, outpath, title_extra=""):
+    import numpy as np
+    import matplotlib.pyplot as plt
+
     plt.figure(figsize=(8,4))
+
+    # Valores de L ordenados
     Ls = sorted(deltas_df['cfg_L'].dropna().unique().tolist())
     means = []
+
+    # Calcular log(media(varianza))
     for L in Ls:
-        sub = deltas_df[deltas_df['cfg_L']==L]
-        means.append(sub['avg_grad_var_lastK'].mean() if len(sub)>0 else np.nan)
-    plt.plot(Ls, means, marker='o', label='avg_grad_var_lastK (media)')
+        sub = deltas_df[deltas_df['cfg_L'] == L]
+        val = sub['avg_grad_var_lastK'].mean()
+        if len(sub) > 0 and val > 0:
+            means.append(np.log(val))
+        else:
+            means.append(np.nan)
+
+    # Convertir a arrays y filtrar NaNs
+    Ls_arr = np.array(Ls, dtype=float)
+    means_arr = np.array(means, dtype=float)
+    mask = np.isfinite(Ls_arr) & np.isfinite(means_arr)
+
+    # Plot de los puntos
+    plt.plot(Ls_arr, means_arr, marker='o', label=r'$\log \bar{V}_{\nabla}$')
+
+    # Ajuste OLS (mínimos cuadrados)
+    if mask.sum() > 2:
+        slope, intercept = np.polyfit(Ls_arr[mask], means_arr[mask], 1)
+        xs = np.linspace(Ls_arr.min(), Ls_arr.max(), 100)
+        ys = intercept + slope * xs
+
+        # Dibujar recta OLS
+        plt.plot(xs, ys, '--', label=rf'OLS ($\epsilon_{{eff}} \approx {-slope:.3f}$)')
+
+    # Etiquetas
     plt.xlabel("L (n_layers)")
-    plt.ylabel("avg_grad_var_lastK")
+    plt.ylabel(r'$\log \bar{V}_{\nabla}$')
+
+    # Leyenda
     plt.legend()
+
+    # Ajuste final
     plt.tight_layout()
     plt.savefig(outpath, dpi=200)
     plt.close()
+
 
 def heatmap_L_shots(deltas_df, outpath_prefix):
     Ls = sorted(deltas_df['cfg_L'].dropna().unique().tolist())
